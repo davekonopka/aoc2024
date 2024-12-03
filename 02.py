@@ -13,19 +13,27 @@ def getTrend(reading, lastReading):
   else:
     return 0
 
-def isSafe(line):
+def isSafe(line, dampen=False):
   readings = line.split(' ')
+  fails = 0
   for index, reading in enumerate(readings):
     if index >= 1:
       # Change is more than 3 or less than 1
       if not (1 <= abs(int(readings[index-1]) - int(reading)) <= 3):
-        return False
-    if index > 1:
-      # Trend is different from the last trend
-      trend = getTrend(int(reading), int(readings[index-1]))
-      lastTrend = getTrend(int(readings[index-1]), int(readings[index-2]))
-      if trend != lastTrend:
-        return False
+        fails += 1
+      if index > 1:
+        # Trend is different from the last trend
+        trend = getTrend(int(reading), int(readings[index-1]))
+        lastTrend = getTrend(int(readings[index-1]), int(readings[index-2]))
+        if trend != lastTrend:
+          fails += 1
+    if fails > 0:
+      if dampen:
+        for i in range(0, len(readings)):
+          dampenedReadings = readings[:i] + readings[i + 1:]
+          if isSafe(' '.join(dampenedReadings), False):
+            return True
+      return False
   return True
 
 try:
@@ -39,7 +47,7 @@ except FileNotFoundError:
 safeCount = 0
 unsafeCount = 0
 for line in data.strip().split('\n'):
-  if isSafe(line):
+  if isSafe(line, True):
     safeCount += 1
   else:
     unsafeCount += 1
