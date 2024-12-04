@@ -14,8 +14,13 @@ except FileNotFoundError:
   sys.exit(1)
 
 total = 0
+
+# Remove all don't sections
+remove = re.compile(r"don't\(\).+?do\(\)",flags=re.DOTALL)
+scrubbed = re.sub(remove, "", data)
+
 pattern = r"mul\((\d+),(\d+)\)"
-for match in re.finditer(pattern, data):
+for match in re.finditer(pattern, scrubbed):
   total += int(match.group(1)) * int(match.group(2))
 
 print(f"Total: {total}")
