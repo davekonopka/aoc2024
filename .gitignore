@@ -1,5 +1,7 @@
 .venv/*
 
+*.input
+
 # Byte-compiled files
 __pycache__/
 *.py[cod]
