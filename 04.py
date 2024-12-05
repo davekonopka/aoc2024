@@ -52,8 +52,6 @@ def checkMatrixPoint(matrix, x, y, length):
         matrix[y][x-i]["hit"] = True
     # up-left
     if y >= 3:
-      if y == 9 and x == 3:
-        print("".join([matrix[y-i][x-i]["char"] for i in range(0, length)]))
       if "".join([matrix[y-i][x-i]["char"] for i in range(0, length)]) in words:
         for i in range(0, length):
           matrix[y-i][x-i]["hit"] = True
@@ -100,6 +98,55 @@ def printMatrix(matrix):
       print(f"\033[{color}{matrixCopy[y][x]["char"]}\033[0m", end="")
     print()
 
+
+def printXMatrix(matrix):
+  matrixCopy = copy.deepcopy(matrix)
+
+  # Build visual matrix
+  for y in range(0, len(matrixCopy)):
+    for x in range(0, len(matrixCopy[y])):
+      matrixCopy[y][x] = { "char": matrixCopy[y][x], "hit": False }
+
+  for y in range(0, len(matrixCopy)):
+    for x in range(0, len(matrixCopy[y])):
+      if x + 2 >= len(matrix[y]) or y + 2 >= len(matrix):
+        continue
+
+      if ((matrix[y][x] == "M"
+        and matrix[y][x+2] == "S"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "M"
+        and matrix[y+2][x+2] == "S")
+        or (matrix[y][x] == "M"
+        and matrix[y][x+2] == "M"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "S"
+        and matrix[y+2][x+2] == "S")
+        or (matrix[y][x] == "S"
+        and matrix[y][x+2] == "S"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "M"
+        and matrix[y+2][x+2] == "M")
+        or (matrix[y][x] == "S"
+        and matrix[y][x+2] == "M"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "S"
+        and matrix[y+2][x+2] == "M")):
+          matrixCopy[y][x]["hit"] = True
+          matrixCopy[y][x+2]["hit"] = True
+          matrixCopy[y+1][x+1]["hit"] = True
+          matrixCopy[y+2][x]["hit"] = True
+          matrixCopy[y+2][x+2]["hit"] = True
+
+  for y in range(0, len(matrixCopy)):
+    for x in range(0, len(matrixCopy[y])):
+      if matrixCopy[y][x]["hit"]:
+        color = "31m"
+      else:
+        color = "32m"
+      print(f"\033[{color}{matrixCopy[y][x]["char"]}\033[0m", end="")
+    print()
+
 matrix = [list(line) for line in data.strip().split("\n")]
 
 # Count the number of times the word "XMAS" appears in the matrix
@@ -130,5 +177,40 @@ for y in range(0, len(matrix)):
       if word in words:
         count += 1
 
+xCount = 0
+for y in range(0, len(matrix)):
+  for x in range(0, len(matrix[y])):
+    if x + 2 >= len(matrix[y]) or y + 2 >= len(matrix):
+      continue
+
+    if ((matrix[y][x] == "M"
+        and matrix[y][x+2] == "S"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "M"
+        and matrix[y+2][x+2] == "S")
+        or (matrix[y][x] == "M"
+        and matrix[y][x+2] == "M"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "S"
+        and matrix[y+2][x+2] == "S")
+        or (matrix[y][x] == "S"
+        and matrix[y][x+2] == "S"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "M"
+        and matrix[y+2][x+2] == "M")
+        or (matrix[y][x] == "S"
+        and matrix[y][x+2] == "M"
+        and matrix[y+1][x+1] == "A"
+        and matrix[y+2][x] == "S"
+        and matrix[y+2][x+2] == "M")):
+      xCount += 1
+
+
+print("XMAS Matrix:")
 printMatrix(matrix)
-print(f"count: {count}")
+print()
+print("X-MAS Matrix:")
+printXMatrix(matrix)
+print()
+print(f"xmas count: {count}")
+print(f"x-mas Count: {xCount}")
