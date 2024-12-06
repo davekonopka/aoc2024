@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import re
+import copy
 import sys
 
 # https://adventofcode.com/2024/day/5/input
@@ -40,9 +40,30 @@ def checkOrder(numbers, ordering):
             return False
   return True
 
+def fixOrder(numbers, ordering):
+  for number in numbers:
+    if number in ordering:
+      for second in ordering[number]:
+        if second in numbers:
+          if numbers.index(number) > numbers.index(second):
+            to_move = numbers.pop(numbers.index(number))
+            numbers.insert(numbers.index(second), to_move)
+  return numbers
+
+secondCount = 0
+
 for line in prints.split("\n"):
   prints = line.split(",")
+  # part one
   if len(line) > 0 and checkOrder(prints, ordering):
     count += int(prints[len(prints)//2])
 
-print(count)
+  # part two
+  if len(line) > 0:
+    printsCopy = copy.deepcopy(prints)
+    fixed = fixOrder(printsCopy, ordering)
+    if fixed != prints:
+      secondCount += int(fixed[len(fixed)//2])
+
+print(f"first count: {count}")
+print(f"second count: {secondCount}")
