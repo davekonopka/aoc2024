@@ -16,7 +16,7 @@ except FileNotFoundError:
 def sumWorkingResults(values, answer):
   total = 0
   # Generate all combinations of operations
-  operations = list(product(["+", "*"], repeat=len(values) - 1))
+  operations = list(product(["+", "*", "||"], repeat=len(values) - 1))
 
   # Evaluate each combination
   for ops in operations:
@@ -27,8 +27,10 @@ def sumWorkingResults(values, answer):
             result += int(values[i + 1])
         elif op == "*":
             result *= int(values[i + 1])
+        elif op == "||":
+            result = int(f"{result}{values[i + 1]}")
         expression += f" {op} {values[i + 1]}"
-    print(f"Combination: {expression}, Result: {result}")
+    # print(f"Combination: {expression}, Result: {result}")
     if result == int(answer):
       total += result
       break
@@ -40,7 +42,7 @@ for line in data.split("\n"):
     parts = line.split(":")
     answer = parts[0].strip()
     values = parts[1].strip().split(" ")
-    print(f"Answer: {answer} Values: {values}")
+    # print(f"Answer: {answer} Values: {values}")
 
     totes += sumWorkingResults(values, answer)
 
