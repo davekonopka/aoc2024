@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-import re
+import copy
 import sys
 
-# https://adventofcode.com/2024/day/3/input
+# https://adventofcode.com/2024/day/6/input
 local_file = "06.input"
-
-sys.setrecursionlimit(10000)
 
 try:
   with open(local_file, "r") as file:
@@ -25,35 +23,105 @@ def currentLocation(map):
 def turnNinetyDegrees(direction):
   return (direction + 90) % 360
 
-def move(map, location, direction):
-  x, y = location
+def countMoves(map):
+  location = currentLocation(map)
   next = None
-  if direction == 0:
-    next = (x, y - 1)
-  elif direction == 90:
-    next = (x + 1, y)
-  elif direction == 180:
-    next = (x, y + 1)
-  elif direction == 270:
-    next = (x - 1, y)
+  change = None
+  direction = 0
+  moves = 0
 
-  if next[1] >= len(map) or next[0] >= len(map[next[1]]):
-    print(f"Found edge at {next}")
-    next = location
-  elif map[next[1]][next[0]] == "#":
-    print(f"Found wall at {next}")
-    return move(map, location, turnNinetyDegrees(direction))
-  elif map[next[1]][next[0]] in [".","X"]:
-    print(f"Moved from {location} to {next}")
-    map[next[1]][next[0]] = 'X'
-    next = move(map, next, direction)
-    return(next)
-  else:
-    print(f"Unexpected: {map[next[1]][next[0]]} at {next}")
+  #print(f"Starting at {location}")
 
-  return (next)
+  while True:
+    x, y = location
 
+    if direction == 0:
+      change = (0, -1)
+    elif direction == 90:
+      change = (1, 0)
+    elif direction == 180:
+      change = (0, 1)
+    elif direction == 270:
+      change = (-1, 0)
 
+    next = (x + change[0], y + change[1])
+    #print(f"Location: {location} Next: {next}")
+
+    if next[1] >= len(map) or next[1] < 0 or next[0] >= len(map[next[1]]) or next[0] < 0:
+      #print(f"Found edge at {next}")
+      break
+    elif map[next[1]][next[0]] in ["#","O"]:
+      direction = turnNinetyDegrees(direction)
+      #print(f"Found wall at {next}. Changing direction to {direction}")
+      continue
+    elif map[next[1]][next[0]] in [".","X", "^"]:
+      if map[next[1]][next[0]] in ["."]:
+        moves += 1
+      if map[next[1]][next[0]] != "^":
+        map[next[1]][next[0]] = 'X'
+      #print(f"{state in visitedStates} BEEP")
+      #print(f"Moved from {location} to {next}")
+      location = next
+      continue
+    else:
+      print(f"Unexpected: {map[next[1]][next[0]]} at {next}")
+
+  return moves
+
+def detectLoop(map):
+  location = currentLocation(map)
+  next = None
+  change = None
+  direction = 0
+  visitedStates = set()
+
+  # print(f"Starting at {location}")
+
+  while True:
+    x, y = location
+
+    if direction == 0:
+      change = (0, -1)
+    elif direction == 90:
+      change = (1, 0)
+    elif direction == 180:
+      change = (0, 1)
+    elif direction == 270:
+      change = (-1, 0)
+
+    next = (x + change[0], y + change[1])
+    #print(f"Location: {location} Next: {next}")
+
+    if next[1] >= len(map) or next[1] < 0 or next[0] >= len(map[next[1]]) or next[0] < 0:
+      #print(f"Found edge at {next}")
+      return False
+    elif map[next[1]][next[0]] in ["#","O"]:
+      direction = turnNinetyDegrees(direction)
+      #print(f"Found wall at {next}. Changing direction to {direction}")
+      continue
+    elif map[next[1]][next[0]] in [".","X", "O", "^"]:
+      if map[next[1]][next[0]] != "^":
+        map[next[1]][next[0]] = 'X'
+      state = (location, direction)
+      # print(f"{state} BEEP")
+      if state in visitedStates:
+        # print(f"Found loop at {next}")
+        return True
+      visitedStates.add(state)
+      #print(f"Moved from {location} to {next}")
+      location = next
+      continue
+    else:
+      print(f"Unexpected: {map[next[1]][next[0]]} at {next}")
+  return False
+
+def printMap(map):
+  for y in range(len(map)):
+    for x in range(len(map[y])):
+      print(map[y][x], end="")
+    print()
+
+# PART ONE
 total = 0
 
 lines =  map.split("\n")
@@ -64,18 +132,20 @@ for y in range(len(lines)):
     for x in range(len(lines[y])):
       mapMatrix[y].append(lines[y][x])
 
-startingPoint = currentLocation(mapMatrix)
-mapMatrix[startingPoint[1]][startingPoint[0]] = 'X'
+mapCounts = copy.deepcopy(mapMatrix)
+print(f"Moves: {countMoves(mapCounts) + 1}")
 
-print(f"{move(mapMatrix, startingPoint, 0)}")
+# PART TWO
+# TODO: Refactor this. It is extremely slow.
+mapLoops = copy.deepcopy(mapMatrix)
+loops = 0
 
-count = 0
-for y in range(len(mapMatrix)):
-  if len(mapMatrix[y]) > 0:
-    for x in range(len(mapMatrix[y])):
-      if mapMatrix[y][x] == 'X':
-        count += 1
-      print(mapMatrix[y][x], end="")
-  print()
+for y in range(len(mapLoops)):
+  for x in range(len(mapLoops[y])):
+    if mapLoops[y][x] == ".":
+      mapCopy = copy.deepcopy(mapLoops)
+      mapCopy[y][x] = "O"
+      if detectLoop(mapCopy):
+        loops += 1
 
-print(f"Total: {count}")
+print(f"Found {loops} loops")
