@@ -4,14 +4,7 @@ import copy
 import sys
 
 # https://adventofcode.com/2024/day/9/input
-local_file = "09.input"
-
-def checksum(line):
-  checksum = 0
-  for i in range(len(line)):
-    if line[i] != ".":
-      checksum += int(line[i]) * i
-  return checksum
+local_file = "09-test.input"
 
 try:
   with open(local_file, "r") as file:
@@ -32,7 +25,7 @@ for i, value in enumerate(values):
     for _ in (range(value)):
       checksum += ((i // 2)*block)
       block += 1
-      print((i // 2), end='')
+      #print((i // 2), end='')
   elif end > i:
     for _ in range(value):
       while end > i and values[end] == 0:
@@ -40,7 +33,7 @@ for i, value in enumerate(values):
       if end <= i:
           break
       checksum += ((end // 2) * block)
-      print((end // 2), end='')
+      #print((end // 2), end='')
       block += 1
       values[end] -= 1
 
