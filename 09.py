@@ -30,9 +30,9 @@ end = len(values) - 1
 for i, value in enumerate(values):
   if i % 2==0:
     for _ in (range(value)):
-      checksum += ((i//2)*block)
+      checksum += ((i // 2)*block)
       block += 1
-      print((i//2), end='')
+      print((i // 2), end='')
   elif end > i:
     for _ in range(value):
       while end > i and values[end] == 0:
