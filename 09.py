@@ -4,7 +4,7 @@ import copy
 import sys
 
 # https://adventofcode.com/2024/day/9/input
-local_file = "09-test.input"
+local_file = "09.input"
 
 try:
   with open(local_file, "r") as file:
@@ -14,28 +14,31 @@ except FileNotFoundError:
   sys.exit(1)
 
 line = data.split('\n')[0]
-values = [int(x) for x in line]
 
-checksum = 0
-block = 0
-end = len(values) - 1
+blocks = []
+disk_id = 0
 
-for i, value in enumerate(values):
-  if i % 2==0:
-    for _ in (range(value)):
-      checksum += ((i // 2)*block)
-      block += 1
-      #print((i // 2), end='')
-  elif end > i:
-    for _ in range(value):
-      while end > i and values[end] == 0:
-          end -= 2
-      if end <= i:
-          break
-      checksum += ((end // 2) * block)
-      #print((end // 2), end='')
-      block += 1
-      values[end] -= 1
+for i in range(len(line)):
+  if i % 2 == 0:
+    blocks.extend([disk_id] * int(line[i]))
+    disk_id += 1
+  else:
+    blocks.extend(["."] * int(line[i]))
 
-print()
-print(checksum)
+# print(f"expanded: {blocks}")
+
+for i in (i for i, x in enumerate(blocks) if x == "."):
+  while blocks[-1] == ".":
+
+    blocks.pop()
+
+  if len(blocks) <= i:
+    break
+
+  blocks[i] = blocks.pop()
+
+# print(f"defragged: {blocks}")
+
+checksum = sum(i * int(x) for i, x in enumerate(blocks) if x != ".")
+
+print(f"checksum: {checksum}")
