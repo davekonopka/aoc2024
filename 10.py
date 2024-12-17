@@ -25,14 +25,15 @@ def getSteps(x, y, map):
 
   possibleSteps = [ [x, y - 1], [x, y + 1], [x + 1, y], [x - 1, y]]
 
-  for i, step in enumerate(possibleSteps.copy()):
+  for step in possibleSteps.copy():
     if step[0] < boundsX[0] or step[0] > boundsX[1] or step[1] < boundsY[0] or step[1] > boundsY[1]:
       possibleSteps.remove([step[0], step[1]])
 
   for step in possibleSteps:
-    stepVal = int(map[step[1]][step[0]])
-    if stepVal - currentVal == 1:
-      steps.append([step[0], step[1]])
+    if map[step[1]][step[0]] != ".":
+      stepVal = int(map[step[1]][step[0]])
+      if stepVal - currentVal == 1:
+        steps.append([step[0], step[1]])
 
   return steps
 
@@ -48,6 +49,16 @@ def walkPath(x, y, map, complete = 0):
       complete = walkPath(step[0], step[1], map, complete)
   return complete
 
+def walkPathRating(x, y, map, complete = 0):
+  steps = getSteps(x, y, map)
+  val = int(map[y][x])
+  for step in steps:
+    stepVal = int(map[step[1]][step[0]])
+    if val == 8 and stepVal == 9:
+      complete += 1
+    elif stepVal == val + 1:
+      complete = walkPathRating(step[0], step[1], map, complete)
+  return complete
 
 # Build map[y][x] matrix from input
 for y, line in enumerate(lines):
@@ -64,5 +75,11 @@ for step in starts:
   paths = walkPath(step[0], step[1], map, paths)
 
 print(paths)
+
+ratings = 0
+for step in starts:
+  ratings = walkPathRating(step[0], step[1], map, ratings)
+
+print(ratings)
 
 
